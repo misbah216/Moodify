@@ -1,22 +1,16 @@
-import { useEffect, useRef, useState } from "react";
 import {
   FaceLandmarker,
   FilesetResolver,
 } from "@mediapipe/tasks-vision";
-let stream;
-function FaceExpression() {
-  const videoRef = useRef(null);
-  const animationRef = useRef(null);
 
-  const [expression, setExpression] = useState("Detecting...");
 
-   const init = async () => {
+ export  const init = async ({landmarkerRef, videoRef , streamRef}) => {
       try {
         const vision = await FilesetResolver.forVisionTasks(
           "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
         );
 
-        const landmarker = await FaceLandmarker.createFromOptions(
+        landmarkerRef.current = await FaceLandmarker.createFromOptions(
           vision,
           {
             baseOptions: {
@@ -33,39 +27,37 @@ function FaceExpression() {
         );
 
         // Start camera
-        stream = await navigator.mediaDevices.getUserMedia({
+        streamRef.current = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: false,
         });
 
-        videoRef.current.srcObject = stream;
+        videoRef.current.srcObject = streamRef.current;
 
-        videoRef.current.onloadeddata = () => {
-          detect(landmarker);
-        };
+        await videoRef.current.play();
       } catch (error) {
         console.error("MediaPipe Error:", error);
         setExpression("Error ❌");
       }
     };
 
-const detect = (landmarker) => {
+export const detect = ({landmarkerRef, videoRef, animationRef , setExpression}) => {
     const video = videoRef.current;
 
-    if (!video || video.readyState < 2) {
+    if (!video || video.readyState < 2 || !landmarkerRef.current) {
       animationRef.current = requestAnimationFrame(() => {
-        detect(landmarker);
+        detect({landmarkerRef, videoRef, animationRef, setExpression});
       });
-
       return;
     }
 
     
-    const result = landmarker.detectForVideo(
+    const result = landmarkerRef.current.detectForVideo(
       video,
       performance.now()
     );
 
+    
     if (result.faceBlendshapes?.length > 0) {
       const categories =
         result.faceBlendshapes[0].categories;
@@ -79,7 +71,7 @@ const detect = (landmarker) => {
         return item?.score || 0;
       };
 
-     
+    
 
       const smileLeft = getScore("mouthSmileLeft");
       const smileRight = getScore("mouthSmileRight");
@@ -151,55 +143,6 @@ const detect = (landmarker) => {
 
     
     animationRef.current = requestAnimationFrame(() => {
-      detect(landmarker);
+      detect({landmarkerRef, videoRef, animationRef , setExpression});
     });
-  };
-
-  useEffect(() => {
-    
-    init();
-
-    
-    return () => {
-      if (animationRef.current) {
-        cancelAnimationFrame(animationRef.current);
-      }
-
-      if (stream) {
-        stream.getTracks().forEach((track) => {
-          track.stop();
-        });
-      }
-    };
-  }, []);
-
-  
-
-  return (
-    <div
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        gap: "20px",
-      }}
-    >
-      <video
-        ref={videoRef}
-        autoPlay
-        playsInline
-        muted
-        width="640"
-        style={{
-          maxWidth: "100%",
-          borderRadius: "15px",
-        }}
-      />
-
-      <h2>{expression}</h2>
-      <button onClick={detect}>Detect Expression</button>
-    </div>
-  );
 }
-
-export default FaceExpression;
