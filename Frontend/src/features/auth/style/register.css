@@ -1,0 +1,39 @@
+.register-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+.register-page .form-container {
+  width: 400px;
+  padding: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+  gap: 1rem;
+  min-width: 300px;
+}
+.register-page .form-container h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+.register-page form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.register-page form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.register-page form input {
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  border: 1px solid #ccc;
+  border: none;
+  outline: none;
+}/*# sourceMappingURL=register.css.map */

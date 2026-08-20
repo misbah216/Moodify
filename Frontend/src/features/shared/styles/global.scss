@@ -1,0 +1,20 @@
+@use "./button.scss";
+
+*{
+    margin :0%;
+    padding : 0%;
+    box-sizing : border-box;
+}
+
+html,body, #root{
+    width:100%;
+    background-color: black;
+    color:whitesmoke;
+    font-family: system-ui;
+    
+
+}
+a{
+    color:rgb(216, 139, 196);
+    text-decoration:none;
+}
