@@ -1,13 +1,17 @@
 const mongoose = require("mongoose");
+const dns = require("dns");
 
-function connectToDB(){
-    mongoose.connect(process.env.MONGO_URI)
+dns.setDefaultResultOrder("ipv4first");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
+
+function connectToDB() {
+  mongoose
+    .connect(process.env.MONGO_URI)
     .then(() => {
-        console.log("Connected to MongoDB");
+      console.log("Connected to MongoDB");
     })
-
     .catch((err) => {
-        console.error("Error connecting to MongoDB:", err);
+      console.error("Error connecting to MongoDB:", err);
     });
 }
 
