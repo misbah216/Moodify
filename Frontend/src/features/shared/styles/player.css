@@ -1,0 +1,83 @@
+.player {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  color: #fff;
+  background: #181818;
+  border-radius: 1rem;
+}
+.player__info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.player__info span {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+.player__controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+}
+.player__button {
+  border: 0;
+  padding: 0.65rem 0.9rem;
+  color: #fff;
+  background: #292929;
+  border-radius: 999px;
+  cursor: pointer;
+}
+.player__button:hover {
+  background: #3d3d3d;
+}
+.player__button--play {
+  width: 3rem;
+  height: 3rem;
+  background: #a45395;
+  font-size: 1.1rem;
+}
+.player__button--play:hover {
+  background: #b24e9b;
+}
+.player__progress {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+.player__progress input {
+  flex: 1;
+  accent-color: #a5398c;
+}
+.player__options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+.player__options label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #aaa;
+  font-size: 0.85rem;
+}
+.player__options select {
+  padding: 0.35rem;
+  color: #fff;
+  background: #292929;
+  border: 1px solid #444;
+  border-radius: 0.4rem;
+}
+.player__options input {
+  accent-color: #b23e9b;
+}
+@media (max-width: 600px) {
+  .player__options {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}/*# sourceMappingURL=player.css.map */
