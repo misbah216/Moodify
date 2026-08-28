@@ -1,39 +1,164 @@
-.register-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
+@charset "UTF-8";
+@keyframes floatTop {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-15px) rotate(8deg);
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
 }
-.register-page .form-container {
-  width: 400px;
-  padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+@keyframes floatBottom {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(15px) rotate(-8deg);
+    opacity: 0.65;
+  }
+  100% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 0.3;
+  }
+}
+@keyframes formGlow {
+  0% {
+    box-shadow: 0 0 20px rgba(233, 30, 99, 0.3), 0 0 35px rgba(156, 39, 176, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 35px rgba(233, 30, 99, 0.6), 0 0 60px rgba(156, 39, 176, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(233, 30, 99, 0.3), 0 0 35px rgba(156, 39, 176, 0.2);
+  }
+}
+.login-page, .register-page {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
+  background-color: #0b0b0e;
+  overflow: hidden;
+}
+.login-page::before, .login-page::after, .register-page::before, .register-page::after {
+  position: absolute;
+  font-size: 2.2rem;
+  pointer-events: none;
+  z-index: 1;
+  filter: drop-shadow(0 0 12px rgba(233, 30, 99, 0.6));
+}
+.login-page::before, .register-page::before {
+  content: "🎵  🎶  🎧  💖  ✨  🎼  🔥";
+  top: 6%;
+  right: 5%;
+  word-spacing: 20px;
+  animation: floatTop 6s ease-in-out infinite;
+}
+.login-page::after, .register-page::after {
+  content: "📻  🌟  🎶  💖  🔥  🎧  🎼";
+  bottom: 6%;
+  left: 5%;
+  word-spacing: 20px;
+  animation: floatBottom 7s ease-in-out infinite;
+}
+.login-page .form-container, .login-page main, .register-page .form-container, .register-page main {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 380px;
+  padding: 2.2rem 2rem;
+  background: rgba(18, 18, 24, 0.85);
+  backdrop-filter: blur(14px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  animation: formGlow 4s ease-in-out infinite;
+  display: flex;
   flex-direction: column;
-  gap: 1rem;
-  min-width: 300px;
+  gap: 1.2rem;
 }
-.register-page .form-container h2 {
+.login-page .form-container h1, .login-page main h1, .register-page .form-container h1, .register-page main h1 {
+  font-size: 2.2rem;
+  font-weight: 800;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 30%, #e91e63 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 10px rgba(233, 30, 99, 0.4));
+  letter-spacing: 1px;
 }
-.register-page form {
+.login-page .form-container form, .login-page main form, .register-page .form-container form, .register-page main form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
-.register-page form .form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
+.login-page .form-container label, .login-page main label, .register-page .form-container label, .register-page main label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #e91e63;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 0.3rem;
+  display: block;
+  text-shadow: 0 0 8px rgba(233, 30, 99, 0.4);
 }
-.register-page form input {
-  padding: 0.5rem;
-  border-radius: 0.25rem;
-  border: 1px solid #ccc;
-  border: none;
+.login-page .form-container input, .login-page main input, .register-page .form-container input, .register-page main input {
+  width: 100%;
+  padding: 0.8rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  color: #ffffff;
+  font-size: 0.95rem;
   outline: none;
+  transition: all 0.3s ease;
+}
+.login-page .form-container input:focus, .login-page main input:focus, .register-page .form-container input:focus, .register-page main input:focus {
+  border-color: #e91e63;
+  box-shadow: 0 0 12px rgba(233, 30, 99, 0.5);
+}
+.login-page .form-container button, .login-page .form-container .button, .login-page main button, .login-page main .button, .register-page .form-container button, .register-page .form-container .button, .register-page main button, .register-page main .button {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #e91e63, #9c27b0);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(233, 30, 99, 0.4);
+}
+.login-page .form-container button:hover, .login-page .form-container .button:hover, .login-page main button:hover, .login-page main .button:hover, .register-page .form-container button:hover, .register-page .form-container .button:hover, .register-page main button:hover, .register-page main .button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 25px rgba(233, 30, 99, 0.7);
+}
+.login-page .form-container button:active, .login-page .form-container .button:active, .login-page main button:active, .login-page main .button:active, .register-page .form-container button:active, .register-page .form-container .button:active, .register-page main button:active, .register-page main .button:active {
+  transform: translateY(0);
+}
+.login-page .form-container p, .login-page main p, .register-page .form-container p, .register-page main p {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #b0b0b0;
+  margin-top: 0.5rem;
+}
+.login-page .form-container p a, .login-page main p a, .register-page .form-container p a, .register-page main p a {
+  color: #e91e63;
+  font-weight: 600;
+  text-decoration: none;
+}
+.login-page .form-container p a:hover, .login-page main p a:hover, .register-page .form-container p a:hover, .register-page main p a:hover {
+  color: #ff4081;
+  text-shadow: 0 0 8px rgba(233, 30, 99, 0.6);
 }/*# sourceMappingURL=register.css.map */

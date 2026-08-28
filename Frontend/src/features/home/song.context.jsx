@@ -1,24 +1,30 @@
-import {createContext}  from "react";
-import { useState } from "react";
+import { createContext, useState } from "react";
 
 export const SongContext = createContext()
 
 export const SongContextProvider = ({children})=>{
+    const [playlist, setPlaylist] = useState([])
+    const [currentSong, setCurrentSong] = useState(null)
+    const [activeMood, setActiveMood] = useState(null)
+    const [currentIndex, setCurrentIndex] = useState(0)
+    const [loading, setLoading] = useState(false)
 
-    const [song , setSong] = useState({
+    const playNext = () => {
+        if (currentIndex >= playlist.length - 1) return
 
-        "url": "https://ik.imagekit.io/1sgcfsz1i/Misbah/moodify/songs/Baliye_Re__320_Kbps__-_www.DownloadMing4.Com_ecd2xamhz.mp3",
-        "posterUrl": "https://ik.imagekit.io/1sgcfsz1i/Misbah/moodify/posters/Baliye_Re__320_Kbps__-_www.DownloadMing4.Com__YZ3cmQe_.jpeg",
-        "title": "Baliye Re (320 Kbps) - www.DownloadMing4.Com",
-        "mood": "sad",
+        const nextIndex = currentIndex + 1
+        setCurrentIndex(nextIndex)
+        setCurrentSong(playlist[nextIndex])
+    }
 
-    })
-
-    const[loading , setLoading ]  = useState(false)
+    const selectSong = (index) => {
+        setCurrentIndex(index)
+        setCurrentSong(playlist[index])
+    }
 
     return (
         <SongContext.Provider
-            value={{loading , setLoading , song , setSong}}
+            value={{ loading, setLoading, currentSong, setCurrentSong, playlist, setPlaylist, activeMood, setActiveMood, currentIndex, setCurrentIndex, playNext, selectSong }}
         >
         {children}
         </SongContext.Provider>

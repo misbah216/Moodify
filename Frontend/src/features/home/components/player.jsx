@@ -1,10 +1,9 @@
-// filepath: c:\Users\Dell\moodify\Frontend\src\features\home\components\player.jsx
 import { useEffect, useRef, useState } from "react";
 import "../../shared/styles/player.scss";
 
 const SPEEDS = [0.5, 0.75, 1, 1.25, 1.5, 2];
 
-export default function Player({ src, title = "Now playing", artist = "" }) {
+export default function Player({ src, title = "Now playing", artist = "" , poster, image , posterUrl, autoPlay = false, onEnded, onPlay, onTimeUpdate}) {
   const audioRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -16,11 +15,28 @@ export default function Player({ src, title = "Now playing", artist = "" }) {
     const audio = audioRef.current;
     if (!audio) return;
 
+    let cancelled = false;
+
     audio.pause();
     audio.currentTime = 0;
     setCurrentTime(0);
     setIsPlaying(false);
-  }, [src]);
+
+    if (autoPlay) {
+      audio.play()
+        .then(() => {
+          if (!cancelled) setIsPlaying(true);
+        })
+        .catch(() => {
+          if (!cancelled) setIsPlaying(false);
+        });
+    }
+
+    return () => {
+      cancelled = true;
+      audio.pause();
+    };
+  }, [src, autoPlay]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
@@ -74,14 +90,36 @@ export default function Player({ src, title = "Now playing", artist = "" }) {
     }
   };
 
+  const seekTo = (event) => {
+    const newTime = Number(event.currentTarget.value);
+    if (!audioRef.current || !Number.isFinite(newTime)) return;
+
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
   return (
     <section className="player">
+
+      <img
+      src={poster || image || posterUrl}
+      alt={title}
+      style={{ display: 'block', width: '100%', maxWidth: '100%', height: 'auto', maxHeight: '300px', objectFit: 'contain', borderRadius: '20px', backgroundColor: '#000' }}
+      />
       <audio
         ref={audioRef}
         src={src}
         onLoadedMetadata={(event) => setDuration(event.currentTarget.duration)}
-        onTimeUpdate={(event) => setCurrentTime(event.currentTarget.currentTime)}
-        onEnded={() => setIsPlaying(false)}
+        onPlay={onPlay}
+        onTimeUpdate={(event) => {
+          const time = event.currentTarget.currentTime;
+          setCurrentTime(time);
+          onTimeUpdate?.(time);
+        }}
+        onEnded={() => {
+          setIsPlaying(false);
+          onEnded?.();
+        }}
       />
 
       <div className="player__info">
@@ -127,11 +165,8 @@ export default function Player({ src, title = "Now playing", artist = "" }) {
           max={duration || 0}
           step="0.1"
           value={currentTime}
-          onChange={(event) => {
-            const value = Number(event.target.value);
-            setCurrentTime(value);
-            audioRef.current.currentTime = value;
-          }}
+          onChange={seekTo}
+          onInput={seekTo}
           aria-label="Playback progress"
         />
 

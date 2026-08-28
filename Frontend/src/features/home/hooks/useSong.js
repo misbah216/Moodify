@@ -1,19 +1,30 @@
-import {getSong} from "../service/song.api";
-import {useContext} from "react";
-import {SongContext} from "../song.context";
+import { getSongs } from "../service/song.api";
+import { useContext } from "react";
+import { SongContext } from "../song.context";
 
 export const useSong =()=>{
     const context = useContext(SongContext)
 
-    const { loading , setLoading , song , setSong} = context
+    const { loading, setLoading, currentSong, setCurrentSong, playlist, setPlaylist, activeMood, setActiveMood, currentIndex, setCurrentIndex, playNext, selectSong } = context;
 
-    async function handleGetSong({mood}){
+    async function handleGetSong(mood){
         setLoading(true)
-        const  data = getSong({mood})
-        setSong(data.song)
-        setLoading(false)
+        try {
+            const data = await getSongs({ mood })
+            const songs = Array.isArray(data.songs) ? data.songs : data.song ? [data.song] : []
+            const normalizedMood = mood.charAt(0).toUpperCase() + mood.slice(1).toLowerCase()
+            setPlaylist(songs)
+            setActiveMood(normalizedMood)
+            setCurrentIndex(0)
+            setCurrentSong(songs[0] || null)
+        } catch {
+            setPlaylist([])
+            setCurrentSong(null)
+        } finally {
+            setLoading(false)
+        }
 
     }
 
-    return ({loading, song , handleGetSong})
+    return ({ loading, currentSong, playlist, activeMood, currentIndex, handleGetSong, playNext, selectSong })
 }
