@@ -90,6 +90,36 @@
 .player__options input {
   accent-color: #b23e9b;
 }
+@media (max-width: 768px) {
+  .player {
+    gap: 0.75rem;
+    padding: 0.9rem;
+    border-width: 2px;
+  }
+  .player__controls {
+    gap: 0.65rem;
+  }
+  .player__button {
+    padding: 0.5rem 0.7rem;
+    font-size: 0.85rem;
+  }
+  .player__button--play {
+    width: 2.7rem;
+    height: 2.7rem;
+  }
+  .player__progress {
+    gap: 0.45rem;
+    font-size: 0.72rem;
+  }
+  .player__options {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .player__options label {
+    justify-content: space-between;
+    width: 100%;
+  }
+}
 @media (max-width: 600px) {
   .player__options {
     align-items: flex-start;

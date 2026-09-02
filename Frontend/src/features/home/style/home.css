@@ -579,6 +579,62 @@
   }
 }
 
+@media (max-width: 768px) {
+  .home-page {
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  .home-header {
+    min-height: 72px;
+    padding: 10px 12px 12px;
+  }
+
+  .home-header__brand {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .home-header__profile {
+    top: 10px;
+    right: 12px;
+  }
+
+  .home-header__profile span {
+    display: none;
+  }
+
+  .home-header__tagline {
+    display: none;
+  }
+
+  .home-header__title {
+    margin-left: 0;
+    font-size: 1.5rem;
+    letter-spacing: 0.06em;
+  }
+
+  .playlist-panel,
+  .home-dashboard-card,
+  .home-content-card {
+    padding: 14px;
+  }
+
+  .home-dashboard-row,
+  .home-personal-row {
+    flex-direction: column;
+  }
+
+  .music-analytics__stats {
+    gap: 18px;
+  }
+
+  .saved-notes-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
 @media (max-width: 600px) {
   .home-header {
     padding: 10px 14px;
@@ -594,6 +650,7 @@
 
   .home-header__title {
     margin-left: 0;
+    font-size: 1.4rem;
   }
 
   .home-dashboard-row {
@@ -602,5 +659,17 @@
 
   .home-personal-row {
     flex-direction: column;
+  }
+
+  .playlist-song {
+    gap: 6px;
+  }
+
+  .playlist-song__select {
+    padding: 7px 6px;
+  }
+
+  .favorite-song {
+    gap: 8px;
   }
 }

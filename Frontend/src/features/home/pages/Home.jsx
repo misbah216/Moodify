@@ -33,6 +33,7 @@ function Home() {
   const { user, handleLogout } = useContext(AuthContext);
   const navigate = useNavigate();
   const [width, setWidth] = useState(350);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' ? window.innerWidth <= 768 : false);
   const [showLogout, setShowLogout] = useState(false);
   const [isDetected, setIsDetected] = useState(false);
   const [currentExpression, setCurrentExpression] = useState(null);
@@ -64,6 +65,17 @@ function Home() {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    handleResize();
+    window.addEventListener('resize', handleResize);
+
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   useEffect(() => {
@@ -180,7 +192,18 @@ function Home() {
   };
 
   return (
-    <div className="home-page" style={{ display: 'flex', gap: '20px', padding: '20px', paddingTop: '94px', width: '100%', boxSizing: 'border-box' }}>
+    <div
+      className="home-page"
+      style={{
+        display: 'flex',
+        gap: isMobile ? '12px' : '20px',
+        flexDirection: isMobile ? 'column' : 'row',
+        padding: isMobile ? '12px' : '20px',
+        paddingTop: isMobile ? '86px' : '94px',
+        width: '100%',
+        boxSizing: 'border-box',
+      }}
+    >
       <header className="home-header">
         <div className="home-header__emojis" aria-hidden="true">
           {HEADER_EMOJIS.map(({ emoji, left, top, delay }) => (
@@ -188,8 +211,8 @@ function Home() {
           ))}
         </div>
         <div className="home-header__brand">
-          <div style={{ marginRight: '100px' }}>
-              <ExplorePlaylists />
+          <div style={{ marginRight: isMobile ? '0' : '100px' }}>
+              <ExplorePlaylists compact={isMobile} />
           </div>
           <svg className="home-header__tagline" viewBox="0 0 340 56" role="img" aria-label="Naya ho purana bas bajna chahiye gaana">
             <defs>
@@ -227,15 +250,15 @@ function Home() {
         </div>
       </header>
 
-      <div 
-        style={{ 
-          width: currentSong ? `${width}px` : 'auto', 
-          flex: currentSong ? '0 0 auto' : '1 1 0',
+      <div
+        style={{
+          width: isMobile ? '100%' : (currentSong ? `${width}px` : 'auto'),
+          flex: isMobile ? '1 1 auto' : (currentSong ? '0 0 auto' : '1 1 0'),
           minWidth: 0,
-          position: 'relative', 
+          position: 'relative',
           transition: 'none',
           boxSizing: 'border-box',
-          paddingRight: '12px'
+          paddingRight: isMobile ? '0' : '12px'
         }}
       >
         <div style={{ margin: 0, padding: 0 }}>

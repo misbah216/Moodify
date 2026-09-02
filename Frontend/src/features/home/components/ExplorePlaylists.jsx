@@ -7,7 +7,7 @@ const lockedPlaylists = [
   { name: "Auto Wale Bhaiya Ki Playlist" },
 ];
 
-function ExplorePlaylists() {
+function ExplorePlaylists({ compact = false }) {
   const [open, setOpen] = useState(false);
   const [unlocked, setUnlocked] = useState([]);
 
@@ -49,7 +49,7 @@ function ExplorePlaylists() {
   };
 
   return (
-    <div style={{ position: "absolute",left:'20px', top:"20px", zIndex:100  }}>
+    <div style={{ position: compact ? "static" : "absolute", left: compact ? 'auto' : '20px', top: compact ? 'auto' : '20px', zIndex: 100 }}>
      <button
     onClick={() => setOpen(!open)}
     style={{
@@ -57,12 +57,13 @@ function ExplorePlaylists() {
     border: "2px solid #ff007f",
     color: "#ffffff",
     borderRadius: "25px",
-    padding: "10px 24px",
-    fontSize: "15px",
+    padding: compact ? "8px 12px" : "10px 24px",
+    fontSize: compact ? "12px" : "15px",
     fontWeight: "600",
     cursor: "pointer",
     boxShadow: "0 0 12px #ff007f, inset 0 0 8px rgba(255, 0, 127, 0.4)",
-    transition: "all 0.3s ease-in-out"
+    transition: "all 0.3s ease-in-out",
+    whiteSpace: compact ? "nowrap" : "normal"
     }}
   >
   Explore More Playlists
