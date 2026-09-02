@@ -16,23 +16,35 @@ export default function Player({ currentSong, title = "Now playing", artist = ""
     const streamUrl = currentSong?.streamUrl;
     if (!audio || !streamUrl) return;
 
+    let isSubscribed = true;
+
     const playSong = async () => {
-      try {
-        audio.pause();
-        audio.src = streamUrl;
-        audio.currentTime = 0;
-        audio.load();
-        if (autoPlay) await audio.play();
-      } catch (error) {
-        console.log("Playback:", error);
-        setIsPlaying(false);
-      }
+        try {
+            audio.src = streamUrl;
+            audio.currentTime = 0;
+            
+            if (autoPlay) {
+                const playPromise = audio.play();
+                if (playPromise !== undefined) {
+                    await playPromise;
+                    if (isSubscribed) setIsPlaying(true);
+                }
+            }
+        } catch (error) {
+            if (error.name !== "AbortError") {
+                console.log("Playback error:", error);
+            }
+            if (isSubscribed) setIsPlaying(false);
+        }
     };
 
     playSong();
 
-    return () => audio.pause();
-  }, [autoPlay, currentSong?.streamUrl]);
+    return () => {
+        isSubscribed = false;
+        audio.pause();
+    };
+}, [autoPlay, currentSong?.streamUrl]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
@@ -94,7 +106,7 @@ export default function Player({ currentSong, title = "Now playing", artist = ""
         type="audio/mpeg"
         preload="metadeta"
         onCanPlayThrough={() => {
-        if (isPlaying) audioRef.current?.play();
+        if (isPlaying) audioRef.current?.play().catch(()=>{});
         }}
 
 
