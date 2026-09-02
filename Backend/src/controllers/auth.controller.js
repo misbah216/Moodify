@@ -69,7 +69,12 @@ async function loginUser(req, res) {
         expiresIn: "3d"
     })
 
-    res.cookie("token", token)
+    res.cookie("token", token, {
+         httpOnly: true,
+        secure: true,
+        sameSite: "None",
+        maxAge: 7*24*60*60*1000
+    });
     return res.status(200).json({
         message: "User logged in successfully",
         user: {
@@ -91,7 +96,11 @@ async function getMe(req,res){
 async function logoutUser(req,res){
     const token= req.cookies.token;
 
-    res.clearCookie("token")
+    res.clearCookie("token", {
+        httpOnly: true,
+        secure: true,
+        sameSite: "None"
+    })
     redis.set(token, Date.now().toString())
 
     res.status(200).json({
