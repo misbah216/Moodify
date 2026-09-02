@@ -24,7 +24,7 @@ function ExplorePlaylists() {
       name: "Moodify",
       description: `Unlock ${playlistName}`,
       handler: async function (response) {
-        await fetch("http://localhost:3000/payment/unlock", { 
+        await fetch("https://moodify-g77y.onrender.com/payment/unlock", { 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include", 
