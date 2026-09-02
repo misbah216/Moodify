@@ -49,21 +49,24 @@ function ExplorePlaylists() {
   };
 
   return (
-    <div style={{ position: "relative", display: "inline-block" }}>
-      <button
-        onClick={() => setOpen(!open)}
-        style={{
-          background: "transparent",
-          border: "1px solid #ff3d9a",
-          color: "#ff3d9a",
-          borderRadius: "20px",
-          padding: "6px 14px",
-          fontSize: "13px",
-          cursor: "pointer",
-        }}
-      >
-        Explore More Playlists
-      </button>
+    <div style={{ position: "absolute",left:'20px', top:"20px", zIndex:100  }}>
+     <button
+    onClick={() => setOpen(!open)}
+    style={{
+    background: "transparent",
+    border: "2px solid #ff007f",
+    color: "#ffffff",
+    borderRadius: "25px",
+    padding: "10px 24px",
+    fontSize: "15px",
+    fontWeight: "600",
+    cursor: "pointer",
+    boxShadow: "0 0 12px #ff007f, inset 0 0 8px rgba(255, 0, 127, 0.4)",
+    transition: "all 0.3s ease-in-out"
+    }}
+  >
+  Explore More Playlists
+  </button>
 
       {open && (
         <div
