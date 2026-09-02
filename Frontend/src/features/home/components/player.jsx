@@ -92,7 +92,12 @@ export default function Player({ currentSong, title = "Now playing", artist = ""
         ref={audioRef}
         src={currentSong?.streamUrl || undefined}
         type="audio/mpeg"
-        preload="auto"
+        preload="metadeta"
+        onCanPlayThrough={() => {
+        if (isPlaying) audioRef.current?.play();
+        }}
+
+
         onLoadedMetadata={(event) => {
           setCurrentTime(0);
           setDuration(event.currentTarget.duration);
