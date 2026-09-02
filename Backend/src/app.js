@@ -10,9 +10,15 @@ const app = express();
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-    origin : "https://moodify-nine-lilac.vercel.app/",
-    credentials : true
-}))
+    origin: function (origin, callback) {
+        if (!origin || origin.includes("vercel.app") || origin.includes("localhost")) {
+            callback(null, true);
+        } else {
+            callback(null, new Error("Not allowed by CORS"));
+        }
+    },
+    credentials: true
+}));
 app.use('/songs', express.static(path.join(__dirname, '../../songs')))
 
 const authRoutes = require("./routes/auth.routes.js")
