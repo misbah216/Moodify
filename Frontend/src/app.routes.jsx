@@ -4,6 +4,7 @@ import Register from "./features/auth/pages/Register.jsx";
 import Login from "./features/auth/pages/Login.jsx";
 import Protected from "./features/auth/components/Protected";
 import Home from "./features/home/pages/Home";
+import SavedNotes from "./features/home/pages/SavedNotes";
 import SplashScreen from "./SplashScreen";
 
 const SplashWrapper = () => {
@@ -37,6 +38,14 @@ export const router = createBrowserRouter([
     element: (
       <Protected>
         <Home />
+      </Protected>
+    ),
+  },
+  {
+    path: "/saved-notes",
+    element: (
+      <Protected>
+        <SavedNotes />
       </Protected>
     ),
   },

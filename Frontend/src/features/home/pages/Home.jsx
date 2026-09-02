@@ -6,6 +6,9 @@ import { useSong } from '../hooks/useSong';
 import { AuthContext } from '../../auth/auth.context';
 import MoodTracker from '../components/MoodTracker';
 import MusicAnalytics from '../components/MusicAnalytics';
+import { saveNote } from '../service/notes.api';
+import { deleteFavorite, getFavorites, saveFavorite } from '../service/song.api';
+import ExplorePlaylists from '../components/ExplorePlaylists';
 import '../style/home.css';
 
 const HEADER_EMOJIS = [
@@ -23,7 +26,7 @@ const PLAYLIST_TAGLINES = {
   surprised: 'Kyuu, chaunk gye',
 };
 
-const getSongKey = (song) => song._id || song.url || `${song.title}-${song.artist || song.mood}`;
+const getSongKey = (song) => song.externalId || song.id || song._id || song.url || `${song.title}-${song.artist || song.mood}`;
 
 function Home() {
   const { handleGetSong, currentSong, playlist, activeMood, currentIndex, playNext, selectSong, loading } = useSong();
@@ -38,16 +41,34 @@ function Home() {
   const [songsPlayed, setSongsPlayed] = useState(0);
   const [listeningSeconds, setListeningSeconds] = useState(0);
   const [favorites, setFavorites] = useState([]);
-  const [journalNote, setJournalNote] = useState(() => localStorage.getItem('moodify-journal-note') || '');
-  const [savedNote, setSavedNote] = useState(() => localStorage.getItem('moodify-journal-note') || '');
+  const [journalNote, setJournalNote] = useState('');
+  const [savedNote, setSavedNote] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
+  const [noteError, setNoteError] = useState('');
   const lastPlaybackTimeRef = useRef(0);
   const playedSongsRef = useRef(new Set());
   const currentMoodRef = useRef(null);
   const cameraCleanupRef = useRef(null);
 
   useEffect(() => {
+    let cancelled = false;
+
+    getFavorites()
+      .then((data) => {
+        if (!cancelled) setFavorites(Array.isArray(data.favorites) ? data.favorites : []);
+      })
+      .catch(() => {
+        if (!cancelled) setFavorites([]);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
     lastPlaybackTimeRef.current = 0;
-  }, [currentSong?.url]);
+  }, [currentSong?.streamUrl, currentSong?.url]);
 
   const handleMoodDetected = (mood) => {
     if (!mood) return;
@@ -77,9 +98,10 @@ function Home() {
   };
 
   const handlePlaybackStart = () => {
-    if (!currentSong?.url || playedSongsRef.current.has(currentSong.url)) return;
+    const streamUrl = currentSong?.streamUrl || currentSong?.url;
+    if (!streamUrl || playedSongsRef.current.has(streamUrl)) return;
 
-    playedSongsRef.current.add(currentSong.url);
+    playedSongsRef.current.add(streamUrl);
     setSongsPlayed((count) => count + 1);
   };
 
@@ -99,17 +121,41 @@ function Home() {
     navigate('/login');
   };
 
-  const toggleFavorite = (song) => {
+  const toggleFavorite = async (song) => {
     const songKey = getSongKey(song);
+    const isFavorite = favorites.some((favorite) => getSongKey(favorite) === songKey);
 
-    setFavorites((currentFavorites) => currentFavorites.some((favorite) => getSongKey(favorite) === songKey)
-      ? currentFavorites.filter((favorite) => getSongKey(favorite) !== songKey)
-      : [...currentFavorites, song]);
+    try {
+      if (isFavorite) {
+        await deleteFavorite(song);
+        setFavorites((currentFavorites) => currentFavorites.filter((favorite) => getSongKey(favorite) !== songKey));
+        return;
+      }
+
+      const data = await saveFavorite(song);
+      const favorite = data.favorite || song;
+      setFavorites((currentFavorites) => currentFavorites.some((item) => getSongKey(item) === songKey)
+        ? currentFavorites
+        : [...currentFavorites, favorite]);
+    } catch {
+      return;
+    }
   };
 
-  const saveJournalNote = () => {
-    localStorage.setItem('moodify-journal-note', journalNote);
-    setSavedNote(journalNote);
+  const saveJournalNote = async () => {
+    if (!journalNote.trim()) return;
+
+    setSavingNote(true);
+    setNoteError('');
+    try {
+      await saveNote(journalNote);
+      setSavedNote(journalNote);
+      setJournalNote('');
+    } catch {
+      setNoteError('Unable to save your note.');
+    } finally {
+      setSavingNote(false);
+    }
   };
 
   const handleMouseDown = (e) => {
@@ -142,15 +188,20 @@ function Home() {
           ))}
         </div>
         <div className="home-header__brand">
+          <div style={{ marginRight: '100px' }}>
+              <ExplorePlaylists />
+          </div>
           <svg className="home-header__tagline" viewBox="0 0 340 56" role="img" aria-label="Naya ho purana bas bajna chahiye gaana">
             <defs>
               <path id="header-tagline-curve" d="M 4 38 Q 85 2 170 28 T 336 22" />
             </defs>
+            
             <text>
               <textPath href="#header-tagline-curve">Naya ho purana bas bajna chahiye gaana</textPath>
             </text>
           </svg>
           <h1 className="home-header__title">Moodify</h1>
+          
         </div>
         <div className="home-header__profile" aria-label={`Profile for ${user?.username || 'User'}`}>
         <button
@@ -165,6 +216,9 @@ function Home() {
         <span className="home-header__username">{user?.username || 'User'}</span>
         {showLogout && (
           <div className="home-header__logout">
+            <button type="button" onClick={() => navigate('/saved-notes')}>
+              Saved Notes
+            </button>
             <button type="button" onClick={handleLogoutClick} style={{ position: 'relative', zIndex: 10, pointerEvents: 'auto' }}>
               Logout
             </button>
@@ -175,8 +229,9 @@ function Home() {
 
       <div 
         style={{ 
-          width: currentSong ? `${width}px` : '100%', 
-          flex: currentSong ? '0 0 auto' : '1 1 auto',
+          width: currentSong ? `${width}px` : 'auto', 
+          flex: currentSong ? '0 0 auto' : '1 1 0',
+          minWidth: 0,
           position: 'relative', 
           transition: 'none',
           boxSizing: 'border-box',
@@ -192,9 +247,11 @@ function Home() {
             style={{ marginTop: '10px', width: '100%', position: 'relative' }}
           >
             <Player
-              src={currentSong.url}
+              key={getSongKey(currentSong)}
+              currentSong={currentSong}
               title={currentSong.title}
-              artist={currentSong.mood}
+              artist={currentSong.artist || currentSong.mood}
+              coverImg={currentSong.coverImg}
               poster={currentSong.posterUrl}
               autoPlay
               onEnded={playNext}
@@ -222,17 +279,17 @@ function Home() {
       </div>
 
       <div style={{ flex: 1 }}>
-        <aside style={{ marginTop: '12px', padding: '18px', minHeight: '280px', border: '1px solid rgba(255, 105, 180, 0.35)', borderRadius: '14px', background: 'rgba(18, 18, 18, 0.92)', color: '#fff' }}>
+        <aside className="playlist-panel" style={{ marginTop: '12px', padding: '18px', minHeight: '280px', border: '1px solid rgba(255, 105, 180, 0.35)', borderRadius: '14px', background: 'rgba(18, 18, 18, 0.92)', color: '#fff' }}>
           <h2 className="playlist-heading" style={{ margin: 0, color: '#ff69b4' }}>
             {activeMood ? `${activeMood} playlist` : 'Playlist'}
           </h2>
           {loading && <p>Loading playlist...</p>}
           {!loading && playlist.length === 0 && <p>Detect a mood to load songs.</p>}
-          <div style={{ display: 'grid', gap: '8px' }}>
+          <div className="playlist-list" style={{ display: 'grid', gap: '8px' }}>
             {playlist.map((playlistSong, index) => (
               <div className="playlist-song" key={getSongKey(playlistSong)}>
                 <button className={`playlist-song__select${index === currentIndex ? ' playlist-song__select--active' : ''}`} type="button" onClick={() => selectSong(index)} aria-label={`Play ${playlistSong.title}`}>
-                  <img src={playlistSong.posterUrl} alt="" width="42" height="42" />
+                  <img src={playlistSong.coverImg || playlistSong.posterUrl} alt="" width="42" height="42" />
                   <span>{playlistSong.title}</span>
                 </button>
                 <button
@@ -270,7 +327,7 @@ function Home() {
               <div className="favorites-list">
                 {favorites.map((favorite) => (
                   <div className="favorite-song" key={getSongKey(favorite)}>
-                    <img src={favorite.posterUrl} alt="" width="44" height="44" />
+                    <img src={favorite.coverImg || favorite.posterUrl} alt="" width="44" height="44" />
                     <div>
                       <strong>{favorite.title}</strong>
                       <span>{favorite.artist || favorite.mood || 'Moodify track'}</span>
@@ -294,7 +351,10 @@ function Home() {
               placeholder="Describe your current thoughts or mood..."
               aria-label="Journal note"
             />
-            <button className="journal-save-button" type="button" onClick={saveJournalNote}>Save Note</button>
+            {noteError && <p className="journal-error">{noteError}</p>}
+            <button className="journal-save-button" type="button" onClick={saveJournalNote} disabled={savingNote || !journalNote.trim()}>
+              {savingNote ? 'Saving...' : 'Save Note'}
+            </button>
           </section>
         </div>
       </div>

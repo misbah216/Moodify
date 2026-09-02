@@ -1,6 +1,28 @@
 const mongoose = require('mongoose')
 
 const songSchema = new mongoose.Schema({
+    user: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    externalId: {
+        type: String
+    },
+    artist: {
+        type: String
+    },
+    source: {
+        type: String,
+        enum: ['upload', 'jiosaavn'],
+        default: 'upload'
+    },
+    streamUrl: {
+        type: String
+    },
+    streamUrls: {
+        type: [String],
+        default: []
+    },
     url :{
         type : String,
         required : true
@@ -21,6 +43,8 @@ const songSchema = new mongoose.Schema({
         }
     }
 })
+
+songSchema.index({ user: 1, externalId: 1 }, { unique: true, sparse: true })
 
 const songModel = mongoose.model("songs", songSchema)
 

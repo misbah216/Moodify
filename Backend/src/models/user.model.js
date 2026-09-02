@@ -14,7 +14,11 @@ const userSchema = new mongoose.Schema({
         type:String,
         required: [true , "Password is required"],
         select : false
-    }
+    },
+    unlockedPlaylists: {
+    type: [String],
+    default: []
+}
 });
 
 const userModel = mongoose.model('User', userSchema);
